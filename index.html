@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Conversor de Itens Guild Arena7</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-R2M74GC3RL"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-R2M74GC3RL');
+    </script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -23,7 +31,8 @@
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             width: 400px;
-            height: 300px;
+            height: 500px;
+            overflow-y: auto;
         }
 
         input {
@@ -57,6 +66,25 @@
             font-size: 12px;
             color: #666;
         }
+
+        #historico {
+            margin-top: 20px;
+            text-align: left;
+            max-height: 200px;
+            overflow-y: auto;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+        }
+
+        #historico h3 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+        }
+
+        #historico p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -66,9 +94,17 @@
         <input type="text" id="input" placeholder="Ex.: 1s" onkeypress="if(event.key === 'Enter') converter()">
         <button onclick="converter()">Converter</button>
         <p id="resultado">Resultado aparecerá aqui</p>
+        <div id="historico">
+            <h3>Histórico de Consultas</h3>
+            <div id="historico-lista"></div>
+        </div>
     </div>
-    <div class="footer">Feito por -maykin-_-</div>
+    <div class="footer">Escrito por -maykin-_-</div>
     <script>
+        // Carregar histórico do localStorage
+        let historico = JSON.parse(localStorage.getItem('historicoConversor')) || [];
+        atualizarHistorico();
+
         function converter() {
             const input = document.getElementById("input").value.trim().toLowerCase();
             const resultado = document.getElementById("resultado");
@@ -112,7 +148,6 @@
                 let restoFG = totalFG % 66;
                 wars = Math.floor(restoFG / 4);
                 fenrirGolds = restoFG % 4;
-                // Se houver Box Reds no resto, converter para fg se >= 15
                 if (fenrirGolds > 0) {
                     boxReds = fenrirGolds * 15;
                     fenrirGolds = Math.floor(boxReds / 15);
@@ -123,19 +158,43 @@
                 if (fenrirGolds > 0) output += `${fenrirGolds}fg `;
                 if (boxReds > 0) output += `${boxReds}br `;
             } else if (unidade === "br") {
-                totalFG = quantidade / 15; // Converte para fg
+                totalFG = quantidade / 15;
                 styles = Math.floor(totalFG / 66);
                 let restoFG = totalFG % 66;
                 wars = Math.floor(restoFG / 4);
                 fenrirGolds = restoFG % 4;
-                boxReds = Math.floor((quantidade % 15)); // Resto em br, se não for exato
+                boxReds = Math.floor((quantidade % 15));
                 if (styles > 0) output += `${styles}s `;
                 if (wars > 0) output += `${wars}w `;
                 if (fenrirGolds > 0) output += `${fenrirGolds}fg `;
                 if (boxReds > 0) output += `${boxReds}br `;
             }
 
-            resultado.textContent = output.trim() || "0";
+            const resultadoTexto = output.trim() || "0";
+            resultado.textContent = resultadoTexto;
+
+            // Adicionar ao histórico
+            historico.push(`${input} → ${resultadoTexto}`);
+            if (historico.length > 10) historico.shift();
+            localStorage.setItem('historicoConversor', JSON.stringify(historico));
+            atualizarHistorico();
+
+            // Registrar evento no Google Analytics
+            gtag('event', 'consulta', {
+                'event_category': 'Conversor',
+                'event_label': input,
+                'value': 1
+            });
+        }
+
+        function atualizarHistorico() {
+            const historicoLista = document.getElementById("historico-lista");
+            historicoLista.innerHTML = "";
+            historico.forEach(item => {
+                const p = document.createElement("p");
+                p.textContent = item;
+                historicoLista.appendChild(p);
+            });
         }
     </script>
 </body>
