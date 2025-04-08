@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversor de Itens Guild Arena7</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            position: relative;
+        }
+
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            height: 300px;
+        }
+
+        input {
+            padding: 5px;
+            margin: 10px;
+            width: 100px;
+        }
+
+        button {
+            padding: 5px 15px;
+            background-color: #000000;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #333333;
+        }
+
+        #resultado {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Conversor de Itens Guild Arena7</h1>
+        <label for="input">Digite o valor (ex.: 1s, 2w, 3fg):</label>
+        <input type="text" id="input" placeholder="Ex.: 1s" onkeypress="if(event.key === 'Enter') converter()">
+        <button onclick="converter()">Converter</button>
+        <p id="resultado">Resultado aparecerá aqui</p>
+    </div>
+    <div class="footer">Feito por -maykin-_-</div>
+    <script>
+        function converter() {
+            const input = document.getElementById("input").value.trim().toLowerCase();
+            const resultado = document.getElementById("resultado");
+            const match = input.match(/^(\d+)(s|w|fg|br)$/);
+            if (!match) {
+                resultado.textContent = "Formato inválido! Use algo como '1s', '2w', '3fg'.";
+                return;
+            }
+
+            const quantidade = parseInt(match[1]);
+            const unidade = match[2];
+            let totalFG = 0;
+            if (unidade === "s") totalFG = quantidade * 66;
+            else if (unidade === "w") totalFG = quantidade * 4;
+            else if (unidade === "fg") totalFG = quantidade;
+            else if (unidade === "br") totalFG = quantidade / 15;
+
+            let styles = 0, wars = 0, fenrirGolds = 0, boxReds = 0;
+            let output = "";
+
+            if (unidade === "s") {
+                wars = quantidade * 16;
+                fenrirGolds = quantidade * 2;
+                wars += Math.floor(fenrirGolds / 4);
+                fenrirGolds = fenrirGolds % 4;
+                if (wars > 0) output += `${wars}w `;
+                if (fenrirGolds > 0) output += `${fenrirGolds}fg `;
+            } else if (unidade === "w") {
+                styles = Math.floor(totalFG / 66);
+                let restoFG = totalFG % 66;
+                wars = Math.floor(restoFG / 4);
+                fenrirGolds = restoFG % 4;
+                if (styles > 0) output += `${styles}s `;
+                if (wars > 0) output += `${wars}w `;
+                if (fenrirGolds > 0) output += `${fenrirGolds}fg `;
+                if (styles === 0 && wars === 0 && fenrirGolds > 0) {
+                    output = `${totalFG}fg`;
+                }
+            } else if (unidade === "fg") {
+                styles = Math.floor(totalFG / 66);
+                let restoFG = totalFG % 66;
+                wars = Math.floor(restoFG / 4);
+                fenrirGolds = restoFG % 4;
+                // Se houver Box Reds no resto, converter para fg se >= 15
+                if (fenrirGolds > 0) {
+                    boxReds = fenrirGolds * 15;
+                    fenrirGolds = Math.floor(boxReds / 15);
+                    boxReds = boxReds % 15;
+                }
+                if (styles > 0) output += `${styles}s `;
+                if (wars > 0) output += `${wars}w `;
+                if (fenrirGolds > 0) output += `${fenrirGolds}fg `;
+                if (boxReds > 0) output += `${boxReds}br `;
+            } else if (unidade === "br") {
+                totalFG = quantidade / 15; // Converte para fg
+                styles = Math.floor(totalFG / 66);
+                let restoFG = totalFG % 66;
+                wars = Math.floor(restoFG / 4);
+                fenrirGolds = restoFG % 4;
+                boxReds = Math.floor((quantidade % 15)); // Resto em br, se não for exato
+                if (styles > 0) output += `${styles}s `;
+                if (wars > 0) output += `${wars}w `;
+                if (fenrirGolds > 0) output += `${fenrirGolds}fg `;
+                if (boxReds > 0) output += `${boxReds}br `;
+            }
+
+            resultado.textContent = output.trim() || "0";
+        }
+    </script>
+</body>
+</html>
