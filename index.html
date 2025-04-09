@@ -16,12 +16,23 @@
         body {
             font-family: Arial, sans-serif;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
             background-color: #f0f0f0;
             position: relative;
+            padding: 20px;
+        }
+
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 900px;
+            gap: 20px;
         }
 
         .container {
@@ -30,23 +41,33 @@
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 400px;
-            height: 300px; /* Reduzido, já que não tem histórico */
+            width: 100%;
         }
 
-        input {
-            padding: 5px;
-            margin: 10px;
-            width: 100px;
+        .items-container {
+            text-align: center;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+        }
+
+        input, select {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
 
         button {
-            padding: 5px 15px;
+            padding: 8px 15px;
             background-color: #000000;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            margin: 5px;
         }
 
         button:hover {
@@ -65,18 +86,258 @@
             font-size: 12px;
             color: #666;
         }
+
+        .form-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 10px 0;
+        }
+
+        .form-control {
+            margin: 5px;
+            min-width: 150px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .search-container {
+            margin: 15px 0;
+        }
+
+        .tab {
+            overflow: hidden;
+            border: 1px solid #ccc;
+            background-color: #f1f1f1;
+            border-radius: 5px 5px 0 0;
+        }
+
+        .tab button {
+            background-color: inherit;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 10px 16px;
+            transition: 0.3s;
+            color: black;
+        }
+
+        .tab button:hover {
+            background-color: #ddd;
+        }
+
+        .tab button.active {
+            background-color: #000;
+            color: white;
+        }
+
+        .tabcontent {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+            background-color: white;
+        }
+
+        .active-tab {
+            display: block;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Conversor de Itens Guild Arena7</h1>
-        <label for="input">Digite o valor (ex.: 1s, 2w, 3fg):</label>
-        <input type="text" id="input" placeholder="Ex.: 1s" onkeypress="if(event.key === 'Enter') converter()">
-        <button onclick="converter()">Converter</button>
-        <p id="resultado">Resultado aparecerá aqui</p>
+    <div class="main-container">
+        <!-- Abas para navegação -->
+        <div class="tab">
+            <button class="tablinks active" onclick="openTab(event, 'conversor')">Conversor</button>
+            <button class="tablinks" onclick="openTab(event, 'itens')">Itens</button>
+            <button class="tablinks" onclick="openTab(event, 'cadastro')">Cadastrar Item</button>
+        </div>
+
+        <!-- Conteúdo das abas -->
+        <div id="conversor" class="tabcontent active-tab">
+            <div class="container">
+                <h1>Conversor de Itens Guild Arena7</h1>
+                <label for="input">Digite o valor (ex.: 1s, 2w, 3fg):</label>
+                <input type="text" id="input" placeholder="Ex.: 1s" onkeypress="if(event.key === 'Enter') converter()">
+                <button onclick="converter()">Converter</button>
+                <p id="resultado">Resultado aparecerá aqui</p>
+            </div>
+        </div>
+
+        <div id="itens" class="tabcontent">
+            <div class="items-container">
+                <h2>Consulta de Itens</h2>
+                <div class="search-container">
+                    <input type="text" id="searchItem" placeholder="Digite o nome do item" onkeyup="searchItems()">
+                    <button onclick="searchItems()">Buscar</button>
+                </div>
+                <table id="itemsTable">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Valor Compra</th>
+                            <th>Valor Venda</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="itemsTableBody">
+                        <!-- Itens serão carregados aqui -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="cadastro" class="tabcontent">
+            <div class="items-container">
+                <h2>Cadastrar Novo Item</h2>
+                <div class="form-group">
+                    <input type="text" id="itemName" class="form-control" placeholder="Nome do Item">
+                    <input type="number" id="buyValue" class="form-control" placeholder="Valor de Compra (FG)">
+                    <input type="number" id="sellValue" class="form-control" placeholder="Valor de Venda (FG)">
+                    <button onclick="addItem()">Salvar Item</button>
+                </div>
+            </div>
+        </div>
     </div>
+    
     <div class="footer">Feito por -maykin-_-</div>
+    
     <script>
+        // Array para armazenar os itens
+        let itemsData = JSON.parse(localStorage.getItem('arena7Items')) || [];
+
+        // Função para abrir abas
+        function openTab(evt, tabName) {
+            const tabcontent = document.getElementsByClassName("tabcontent");
+            for (let i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].classList.remove("active-tab");
+            }
+
+            const tablinks = document.getElementsByClassName("tablinks");
+            for (let i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+
+            document.getElementById(tabName).classList.add("active-tab");
+            evt.currentTarget.className += " active";
+
+            // Se for a aba de itens, atualiza a tabela
+            if (tabName === 'itens') {
+                loadItemsTable();
+            }
+        }
+
+        // Função para adicionar item
+        function addItem() {
+            const name = document.getElementById("itemName").value.trim();
+            const buyValue = parseFloat(document.getElementById("buyValue").value);
+            const sellValue = parseFloat(document.getElementById("sellValue").value);
+
+            if (!name || isNaN(buyValue) || isNaN(sellValue)) {
+                alert("Preencha todos os campos corretamente!");
+                return;
+            }
+
+            const newItem = {
+                id: Date.now(),
+                name: name,
+                buyValue: buyValue,
+                sellValue: sellValue
+            };
+
+            itemsData.push(newItem);
+            saveItems();
+            loadItemsTable();
+
+            // Limpa os campos
+            document.getElementById("itemName").value = '';
+            document.getElementById("buyValue").value = '';
+            document.getElementById("sellValue").value = '';
+
+            alert("Item cadastrado com sucesso!");
+        }
+
+        // Função para salvar itens no localStorage
+        function saveItems() {
+            localStorage.setItem('arena7Items', JSON.stringify(itemsData));
+        }
+
+        // Função para carregar a tabela de itens
+        function loadItemsTable(filter = '') {
+            const tbody = document.getElementById("itemsTableBody");
+            tbody.innerHTML = '';
+
+            const filteredItems = itemsData.filter(item => 
+                item.name.toLowerCase().includes(filter.toLowerCase())
+            );
+
+            if (filteredItems.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4">Nenhum item encontrado</td></tr>';
+                return;
+            }
+
+            filteredItems.forEach(item => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${item.name}</td>
+                    <td>${item.buyValue} FG</td>
+                    <td>${item.sellValue} FG</td>
+                    <td>
+                        <button onclick="deleteItem(${item.id})">Excluir</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Função para deletar item
+        function deleteItem(id) {
+            if (confirm("Tem certeza que deseja excluir este item?")) {
+                itemsData = itemsData.filter(item => item.id !== id);
+                saveItems();
+                loadItemsTable();
+            }
+        }
+
+        // Função para buscar itens
+        function searchItems() {
+            const searchTerm = document.getElementById("searchItem").value;
+            loadItemsTable(searchTerm);
+        }
+
+        // Carrega a tabela quando a página é aberta
+        window.onload = function() {
+            loadItemsTable();
+            
+            // Verifica se há parâmetro na URL para abrir aba específica
+            const urlParams = new URLSearchParams(window.location.search);
+            const tab = urlParams.get('tab');
+            if (tab) {
+                document.querySelector(`.tablinks[onclick*="${tab}"]`).click();
+            }
+        };
+
+        // Seu conversor original (mantido intacto)
         function converter() {
             const input = document.getElementById("input").value.trim().toLowerCase();
             const resultado = document.getElementById("resultado");
