@@ -5,24 +5,280 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Conversor de Itens Guild Arena7</title>
     <style>
-        /* (Mantendo os estilos anteriores) */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            position: relative;
+            padding: 20px;
+        }
+
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 900px;
+            gap: 20px;
+        }
+
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+        }
+
+        .items-container {
+            text-align: center;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+        }
+
+        input, select {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 8px 15px;
+            background-color: #000000;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        button:hover {
+            background-color: #333333;
+        }
+
+        #resultado {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .form-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 10px 0;
+        }
+
+        .form-control {
+            margin: 5px;
+            min-width: 150px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .search-container {
+            margin: 15px 0;
+        }
+
+        .tab {
+            overflow: hidden;
+            border: 1px solid #ccc;
+            background-color: #f1f1f1;
+            border-radius: 5px 5px 0 0;
+        }
+
+        .tab button {
+            background-color: inherit;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 10px 16px;
+            transition: 0.3s;
+            color: black;
+        }
+
+        .tab button:hover {
+            background-color: #ddd;
+        }
+
+        .tab button.active {
+            background-color: #000;
+            color: white;
+        }
+
+        .tabcontent {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+            background-color: white;
+        }
+
+        .active-tab {
+            display: block;
+        }
+
         .unit-hint {
             font-size: 12px;
             color: #666;
             margin-top: -5px;
             margin-bottom: 10px;
         }
+
         .error-message {
             color: red;
             font-size: 14px;
             margin-top: 5px;
         }
+
+        #adminTab {
+            display: none;
+        }
     </style>
 </head>
 <body>
-    <!-- (Mantendo a estrutura HTML anterior) -->
+    <div class="main-container">
+        <!-- Abas para navegação -->
+        <div class="tab">
+            <button class="tablinks active" onclick="openTab(event, 'conversor')">Conversor</button>
+            <button class="tablinks" onclick="openTab(event, 'itens')">Itens</button>
+            <button class="tablinks" onclick="openTab(event, 'cadastro')">Cadastrar Item</button>
+            <button class="tablinks" onclick="checkAdmin()">Admin</button>
+        </div>
 
+        <!-- Conteúdo das abas -->
+        <div id="conversor" class="tabcontent active-tab">
+            <div class="container">
+                <h1>Conversor de Itens Guild Arena7</h1>
+                <label for="input">Digite o valor (ex.: 1s, 2w, 3fg):</label>
+                <input type="text" id="input" placeholder="Ex.: 1s" onkeypress="if(event.key === 'Enter') converter()">
+                <button onclick="converter()">Converter</button>
+                <p id="resultado">Resultado aparecerá aqui</p>
+            </div>
+        </div>
+
+        <div id="itens" class="tabcontent">
+            <div class="items-container">
+                <h2>Consulta de Itens</h2>
+                <div class="search-container">
+                    <input type="text" id="searchItem" placeholder="Digite o nome do item" onkeyup="searchItems()">
+                    <button onclick="searchItems()">Buscar</button>
+                </div>
+                <table id="itemsTable">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Valor Compra</th>
+                            <th>Valor Venda</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="itemsTableBody">
+                        <!-- Itens serão carregados aqui -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="cadastro" class="tabcontent">
+            <div class="items-container">
+                <h2>Cadastrar Novo Item</h2>
+                <p class="unit-hint">Use formatos como: 1s, 2w, 3fg, 1s+2w, 1w+3fg, etc.</p>
+                <div class="form-group">
+                    <input type="text" id="itemName" class="form-control" placeholder="Nome do Item" required>
+                    <input type="text" id="buyValue" class="form-control" placeholder="Valor de Compra (ex: 1s+2w)" required>
+                    <input type="text" id="sellValue" class="form-control" placeholder="Valor de Venda (ex: 3fg+1w)" required>
+                    <button onclick="addItem()">Salvar Item</button>
+                </div>
+                <div id="errorMessage" class="error-message"></div>
+            </div>
+        </div>
+
+        <!-- Aba de administração (oculta inicialmente) -->
+        <div id="adminTab" class="tabcontent">
+            <div class="items-container">
+                <h2>Itens Pendentes de Aprovação</h2>
+                <table id="pendingItemsTable">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Valor Compra</th>
+                            <th>Valor Venda</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pendingItemsBody">
+                        <!-- Itens pendentes serão carregados aqui -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">Feito por -maykin-_-</div>
+    
     <script>
+        // Array para armazenar os itens
+        let itemsData = JSON.parse(localStorage.getItem('arena7Items')) || [];
+
+        // Função para abrir abas
+        function openTab(evt, tabName) {
+            const tabcontent = document.getElementsByClassName("tabcontent");
+            for (let i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].classList.remove("active-tab");
+            }
+
+            const tablinks = document.getElementsByClassName("tablinks");
+            for (let i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+
+            document.getElementById(tabName).classList.add("active-tab");
+            evt.currentTarget.className += " active";
+
+            // Se for a aba de itens, atualiza a tabela
+            if (tabName === 'itens') {
+                loadItemsTable();
+            }
+        }
+
         // Função para validar o formato do valor
         function isValidValue(value) {
             if (!value) return false;
@@ -36,17 +292,20 @@
             const name = document.getElementById("itemName").value.trim();
             const buyValue = document.getElementById("buyValue").value.trim();
             const sellValue = document.getElementById("sellValue").value.trim();
+            const errorElement = document.getElementById("errorMessage");
 
             // Validação dos campos
             if (!name || !buyValue || !sellValue) {
-                alert("Todos os campos devem ser preenchidos!");
+                errorElement.textContent = "Todos os campos devem ser preenchidos!";
                 return;
             }
 
             if (!isValidValue(buyValue) || !isValidValue(sellValue)) {
-                alert("Formato inválido para valores! Use algo como '1s', '2w+3fg' ou '1s+2w+5br'");
+                errorElement.textContent = "Formato inválido para valores! Use algo como '1s', '2w+3fg' ou '1s+2w+5br'";
                 return;
             }
+
+            errorElement.textContent = "";
 
             const newItem = {
                 id: Date.now(),
@@ -58,8 +317,7 @@
 
             itemsData.push(newItem);
             saveItems();
-            loadItemsTable();
-
+            
             // Limpar campos
             document.getElementById("itemName").value = '';
             document.getElementById("buyValue").value = '';
@@ -68,19 +326,12 @@
             alert("Item cadastrado! Aguarde aprovação.");
         }
 
-        // Função para aprovar item (só você pode fazer isso)
-        function approveItem(id) {
-            if (confirm("Deseja aprovar este item?")) {
-                const item = itemsData.find(item => item.id === id);
-                if (item) {
-                    item.approved = true;
-                    saveItems();
-                    loadItemsTable();
-                }
-            }
+        // Função para salvar itens no localStorage
+        function saveItems() {
+            localStorage.setItem('arena7Items', JSON.stringify(itemsData));
         }
 
-        // Modificar a função que carrega a tabela para mostrar apenas itens aprovados
+        // Função para carregar a tabela de itens
         function loadItemsTable(filter = '') {
             const tbody = document.getElementById("itemsTableBody");
             tbody.innerHTML = '';
@@ -91,7 +342,7 @@
             });
 
             if (filteredItems.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5">Nenhum item aprovado encontrado</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4">Nenhum item aprovado encontrado</td></tr>';
                 return;
             }
 
@@ -109,13 +360,45 @@
             });
         }
 
-        // Adicionar uma nova aba para aprovação de itens (só visível para você)
+        // Função para deletar item
+        function deleteItem(id) {
+            if (confirm("Tem certeza que deseja excluir este item?")) {
+                itemsData = itemsData.filter(item => item.id !== id);
+                saveItems();
+                loadItemsTable();
+                loadPendingItems(); // Atualiza também a lista de pendentes
+            }
+        }
+
+        // Função para buscar itens
+        function searchItems() {
+            const searchTerm = document.getElementById("searchItem").value;
+            loadItemsTable(searchTerm);
+        }
+
+        // Função para aprovar item (só você pode fazer isso)
+        function approveItem(id) {
+            if (confirm("Deseja aprovar este item?")) {
+                const item = itemsData.find(item => item.id === id);
+                if (item) {
+                    item.approved = true;
+                    saveItems();
+                    loadItemsTable();
+                    loadPendingItems();
+                }
+            }
+        }
+
+        // Verifica se é admin
         function checkAdmin() {
-            // Verifica se é você (pode usar um prompt de senha ou outro método)
-            const isAdmin = confirm("Você é o administrador?");
-            if (isAdmin) {
+            const password = prompt("Digite a senha de administrador:");
+            // Substitua "SUA_SENHA" pela senha que você quer usar
+            if (password === "SUA_SENHA") {
                 document.getElementById("adminTab").style.display = 'block';
+                openTab(event, 'adminTab');
                 loadPendingItems();
+            } else {
+                alert("Acesso negado!");
             }
         }
 
@@ -126,7 +409,7 @@
             tbody.innerHTML = '';
 
             if (pendingItems.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5">Nenhum item pendente</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4">Nenhum item pendente</td></tr>';
                 return;
             }
 
@@ -143,6 +426,81 @@
                 `;
                 tbody.appendChild(row);
             });
+        }
+
+        // Carrega a tabela quando a página é aberta
+        window.onload = function() {
+            loadItemsTable();
+        };
+
+        // Seu conversor original (mantido intacto)
+        function converter() {
+            const input = document.getElementById("input").value.trim().toLowerCase();
+            const resultado = document.getElementById("resultado");
+            const match = input.match(/^(\d+)(s|w|fg|br)$/);
+            if (!match) {
+                resultado.textContent = "Formato inválido! Use algo como '1s', '2w', '3fg'.";
+                return;
+            }
+
+            const quantidade = parseInt(match[1]);
+            const unidade = match[2];
+            let totalFG = 0;
+            if (unidade === "s") totalFG = quantidade * 66;
+            else if (unidade === "w") totalFG = quantidade * 4;
+            else if (unidade === "fg") totalFG = quantidade;
+            else if (unidade === "br") totalFG = quantidade / 15;
+
+            let styles = 0, wars = 0, fenrirGolds = 0, boxReds = 0;
+            let output = "";
+
+            if (unidade === "s") {
+                wars = quantidade * 16;
+                fenrirGolds = quantidade * 2;
+                wars += Math.floor(fenrirGolds / 4);
+                fenrirGolds = fenrirGolds % 4;
+                if (wars > 0) output += `${wars}w `;
+                if (fenrirGolds > 0) output += `${fenrirGolds}fg `;
+            } else if (unidade === "w") {
+                styles = Math.floor(totalFG / 66);
+                let restoFG = totalFG % 66;
+                wars = Math.floor(restoFG / 4);
+                fenrirGolds = restoFG % 4;
+                if (styles > 0) output += `${styles}s `;
+                if (wars > 0) output += `${wars}w `;
+                if (fenrirGolds > 0) output += `${fenrirGolds}fg `;
+                if (styles === 0 && wars === 0 && fenrirGolds > 0) {
+                    output = `${totalFG}fg`;
+                }
+            } else if (unidade === "fg") {
+                styles = Math.floor(totalFG / 66);
+                let restoFG = totalFG % 66;
+                wars = Math.floor(restoFG / 4);
+                fenrirGolds = restoFG % 4;
+                if (fenrirGolds > 0) {
+                    boxReds = fenrirGolds * 15;
+                    fenrirGolds = Math.floor(boxReds / 15);
+                    boxReds = boxReds % 15;
+                }
+                if (styles > 0) output += `${styles}s `;
+                if (wars > 0) output += `${wars}w `;
+                if (fenrirGolds > 0) output += `${fenrirGolds}fg `;
+                if (boxReds > 0) output += `${boxReds}br `;
+            } else if (unidade === "br") {
+                totalFG = quantidade / 15;
+                styles = Math.floor(totalFG / 66);
+                let restoFG = totalFG % 66;
+                wars = Math.floor(restoFG / 4);
+                fenrirGolds = restoFG % 4;
+                boxReds = Math.floor((quantidade % 15));
+                if (styles > 0) output += `${styles}s `;
+                if (wars > 0) output += `${wars}w `;
+                if (fenrirGolds > 0) output += `${fenrirGolds}fg `;
+                if (boxReds > 0) output += `${boxReds}br `;
+            }
+
+            const resultadoTexto = output.trim() || "0";
+            resultado.textContent = resultadoTexto;
         }
     </script>
 </body>
