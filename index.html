@@ -50,6 +50,7 @@
             margin: 5px;
             border: 1px solid #ddd;
             border-radius: 4px;
+            width: 150px;
         }
 
         button {
@@ -88,7 +89,6 @@
 
         .form-control {
             margin: 5px;
-            min-width: 150px;
         }
 
         table {
@@ -198,7 +198,8 @@
             <div class="items-container">
                 <h2>Consulta de Itens</h2>
                 <div class="search-container">
-                    <input type="text" id="searchItem" placeholder="Digite o nome do item" onkeyup="searchItems()">
+                    <input type="text" id="searchItem" placeholder="Digite o nome do item" 
+                           onkeypress="if(event.key === 'Enter') searchItems()">
                     <button onclick="searchItems()">Buscar</button>
                 </div>
                 <table id="itemsTable">
@@ -220,11 +221,14 @@
         <div id="cadastro" class="tabcontent">
             <div class="items-container">
                 <h2>Cadastrar Novo Item</h2>
-                <p class="unit-hint">Use formatos como: 1s, 2w, 3fg, 1s+2w, 1w+3fg, etc.</p>
+                <p class="unit-hint">Use formatos como: 1s, 0.5w, 3fg, 1s+2w, 1w+3fg, etc. (Unidades: s, w, fg, rd)</p>
                 <div class="form-group">
-                    <input type="text" id="itemName" class="form-control" placeholder="Nome do Item" required>
-                    <input type="text" id="buyValue" class="form-control" placeholder="Valor de Compra (ex: 1s+2w)" required>
-                    <input type="text" id="sellValue" class="form-control" placeholder="Valor de Venda (ex: 3fg+1w)" required>
+                    <input type="text" id="itemName" class="form-control" placeholder="Nome do Item" 
+                           onkeypress="if(event.key === 'Enter') addItem()">
+                    <input type="text" id="buyValue" class="form-control" placeholder="Valor Compra (ex: 1s+2w)" 
+                           onkeypress="if(event.key === 'Enter') addItem()">
+                    <input type="text" id="sellValue" class="form-control" placeholder="Valor Venda (ex: 3fg+1w)" 
+                           onkeypress="if(event.key === 'Enter') addItem()">
                     <button onclick="addItem()">Salvar Item</button>
                 </div>
                 <div id="errorMessage" class="error-message"></div>
@@ -279,11 +283,11 @@
             }
         }
 
-        // Função para validar o formato do valor
+        // Função para validar o formato do valor (aceita valores fracionários como 0.5s)
         function isValidValue(value) {
             if (!value) return false;
-            // Padrão para formatos como 1s, 2w, 3fg, 1s+2w, 1s+3w+5fg, etc.
-            const pattern = /^(\d+[swfgbd])+(\+\d+[swfgbd])*$/i;
+            // Padrão para formatos como 1s, 0.5w, 3fg, 1s+2w, 1w+3fg, etc.
+            const pattern = /^(\d*\.?\d+[swfgrd])(\+\d*\.?\d+[swfgrd])*$/i;
             return pattern.test(value.replace(/\s+/g, ''));
         }
 
@@ -301,7 +305,7 @@
             }
 
             if (!isValidValue(buyValue) || !isValidValue(sellValue)) {
-                errorElement.textContent = "Formato inválido para valores! Use algo como '1s', '2w+3fg' ou '1s+2w+5br'";
+                errorElement.textContent = "Formato inválido! Use números com unidades (ex: 1fg, 0.5s, 1w+2fg)";
                 return;
             }
 
@@ -376,16 +380,14 @@
             loadItemsTable(searchTerm);
         }
 
-        // Função para aprovar item (só você pode fazer isso)
+        // Função para aprovar item sem confirmação
         function approveItem(id) {
-            if (confirm("Deseja aprovar este item?")) {
-                const item = itemsData.find(item => item.id === id);
-                if (item) {
-                    item.approved = true;
-                    saveItems();
-                    loadItemsTable();
-                    loadPendingItems();
-                }
+            const item = itemsData.find(item => item.id === id);
+            if (item) {
+                item.approved = true;
+                saveItems();
+                loadItemsTable();
+                loadPendingItems();
             }
         }
 
@@ -393,7 +395,7 @@
         function checkAdmin() {
             const password = prompt("Digite a senha de administrador:");
             // Substitua "SUA_SENHA" pela senha que você quer usar
-            if (password === "SUA_SENHA") {
+            if (password === "1910") {
                 document.getElementById("adminTab").style.display = 'block';
                 openTab(event, 'adminTab');
                 loadPendingItems();
