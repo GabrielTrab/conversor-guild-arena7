@@ -32,47 +32,48 @@
     
     <div class="footer">Feito por -maykin-_-</div>
     
-    <!-- Firebase SDK - VERSÃO CORRIGIDA -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { 
-            getFirestore, 
-            collection, 
-            addDoc, 
-            getDocs, 
-            doc, 
-            deleteDoc,
-            updateDoc
-        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    <!-- Firebase SDK - VERSÃO ATUALIZADA -->
+<script type="module">
+    // Importe apenas o necessário
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { 
+        getFirestore, 
+        collection, 
+        addDoc, 
+        getDocs, 
+        doc, 
+        deleteDoc,
+        updateDoc
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // SUAS CONFIGURAÇÕES DO FIREBASE (SUBSTITUA PELOS SEUS DADOS)
-        const firebaseConfig = {
-            apiKey: "AIzaSyD...sua-chave-aqui",
-            authDomain: "seu-projeto.firebaseapp.com",
-            projectId: "seu-projeto-id",
-            storageBucket: "seu-projeto.appspot.com",
-            messagingSenderId: "1234567890",
-            appId: "1:1234567890:web:abcd...seu-app-id"
-        };
+    // SUAS configurações (que você acabou de obter)
+    const firebaseConfig = {
+        apiKey: "AIzaSyCHiBHZbP0kJ50ntpxPTPkAY8FS68Bsi3k",
+        authDomain: "guildarena7-itens-final.firebaseapp.com",
+        projectId: "guildarena7-itens-final",
+        storageBucket: "guildarena7-itens-final.appspot.com", // Corrigi para .appspot.com
+        messagingSenderId: "215331709133",
+        appId: "1:215331709133:web:636349117e86b648ff8984"
+    };
 
-        // Inicializa o Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const itemsCollection = collection(db, "arena7Items");
+    // Inicialize o Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const itemsCollection = collection(db, "arena7Items");
 
-        // Debug de inicialização
-        console.log("Firebase inicializado com sucesso!");
+    // Debug (verifique no console F12)
+    console.log("Firebase inicializado!");
 
-        // Disponibiliza as funções globalmente
-        window.firebaseItems = {
-            itemsCollection,
-            addDoc, 
-            getDocs, 
-            doc, 
-            deleteDoc,
-            updateDoc
-        };
-    </script>
+    // Disponibiliza as funções globalmente
+    window.firebaseItems = {
+        itemsCollection,
+        addDoc, 
+        getDocs, 
+        doc, 
+        deleteDoc,
+        updateDoc
+    };
+</script>
 
     <script>
         // Função para abrir abas (igual à sua original)
