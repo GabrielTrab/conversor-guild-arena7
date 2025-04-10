@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Conversor de Itens Guild Arena7</title>
     <style>
-        /* (Mantido igual ao seu estilo original) */
         body {
             font-family: Arial, sans-serif;
             display: flex;
@@ -18,82 +17,311 @@
             position: relative;
             padding: 20px;
         }
-        /* ... (todo o resto do seu CSS permanece igual) ... */
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 900px;
+            gap: 20px;
+        }
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+        }
+        .items-container {
+            text-align: center;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+        }
+        input, select {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 150px;
+        }
+        button {
+            padding: 8px 15px;
+            background-color: #000000;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #333333;
+        }
+        #resultado {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .footer {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 12px;
+            color: #666;
+        }
+        .form-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 10px 0;
+        }
+        .form-control {
+            margin: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .search-container {
+            margin: 15px 0;
+        }
+        .tab {
+            overflow: hidden;
+            border: 1px solid #ccc;
+            background-color: #f1f1f1;
+            border-radius: 5px 5px 0 0;
+        }
+        .tab button {
+            background-color: inherit;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 10px 16px;
+            transition: 0.3s;
+            color: black;
+        }
+        .tab button:hover {
+            background-color: #ddd;
+        }
+        .tab button.active {
+            background-color: #000;
+            color: white;
+        }
+        .tabcontent {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+            background-color: white;
+        }
+        .active-tab {
+            display: block;
+        }
+        .unit-hint {
+            font-size: 12px;
+            color: #666;
+            margin-top: -5px;
+            margin-bottom: 10px;
+        }
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        #adminTab {
+            display: none;
+        }
     </style>
 </head>
 <body>
-    <!-- (Todo o seu HTML permanece igual) -->
     <div class="main-container">
         <!-- Abas para navegação -->
         <div class="tab">
-            <!-- ... (conteúdo das abas igual ao seu original) ... -->
+            <button class="tablinks active" onclick="openTab(event, 'conversor')">Conversor</button>
+            <button class="tablinks" onclick="openTab(event, 'itens')">Itens</button>
+            <button class="tablinks" onclick="openTab(event, 'cadastro')">Cadastrar Item</button>
+            <button class="tablinks" onclick="checkAdmin()">Admin</button>
+        </div>
+
+        <!-- Conteúdo das abas -->
+        <div id="conversor" class="tabcontent active-tab">
+            <div class="container">
+                <h1>Conversor de Itens Guild Arena7</h1>
+                <label for="input">Digite o valor (ex.: 1s, 2w, 3fg):</label>
+                <input type="text" id="input" placeholder="Ex.: 1s" onkeypress="if(event.key === 'Enter') converter()">
+                <button onclick="converter()">Converter</button>
+                <p id="resultado">Resultado aparecerá aqui</p>
+            </div>
+        </div>
+
+        <div id="itens" class="tabcontent">
+            <div class="items-container">
+                <h2>Consulta de Itens</h2>
+                <div class="search-container">
+                    <input type="text" id="searchItem" placeholder="Digite o nome do item" 
+                           onkeypress="if(event.key === 'Enter') searchItems()">
+                    <button onclick="searchItems()">Buscar</button>
+                </div>
+                <table id="itemsTable">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Valor Compra</th>
+                            <th>Valor Venda</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="itemsTableBody">
+                        <!-- Itens serão carregados aqui -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="cadastro" class="tabcontent">
+            <div class="items-container">
+                <h2>Cadastrar Novo Item</h2>
+                <p class="unit-hint">Use formatos como: 1s, 0.5w, 3fg, 1s+2w, 1w+3fg, etc. (Unidades: s, w, fg, rd)</p>
+                <div class="form-group">
+                    <input type="text" id="itemName" class="form-control" placeholder="Nome do Item" 
+                           onkeypress="if(event.key === 'Enter') addItem()">
+                    <input type="text" id="buyValue" class="form-control" placeholder="Valor Compra (ex: 1s+2w)" 
+                           onkeypress="if(event.key === 'Enter') addItem()">
+                    <input type="text" id="sellValue" class="form-control" placeholder="Valor Venda (ex: 3fg+1w)" 
+                           onkeypress="if(event.key === 'Enter') addItem()">
+                    <button onclick="addItem()">Salvar Item</button>
+                </div>
+                <div id="errorMessage" class="error-message"></div>
+            </div>
+        </div>
+
+        <!-- Aba de administração (oculta inicialmente) -->
+        <div id="adminTab" class="tabcontent">
+            <div class="items-container">
+                <h2>Itens Pendentes de Aprovação</h2>
+                <table id="pendingItemsTable">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Valor Compra</th>
+                            <th>Valor Venda</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pendingItemsBody">
+                        <!-- Itens pendentes serão carregados aqui -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
     
     <div class="footer">Feito por -maykin-_-</div>
     
-    <!-- Firebase SDK - VERSÃO ATUALIZADA -->
-<script type="module">
-    // Importe apenas o necessário
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { 
-        getFirestore, 
-        collection, 
-        addDoc, 
-        getDocs, 
-        doc, 
-        deleteDoc,
-        updateDoc
-    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    <!-- Firebase SDK - VERSÃO CORRIGIDA -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { 
+            getFirestore, 
+            collection, 
+            addDoc, 
+            getDocs, 
+            doc, 
+            deleteDoc,
+            updateDoc
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // SUAS configurações (que você acabou de obter)
-    const firebaseConfig = {
-        apiKey: "AIzaSyCHiBHZbP0kJ50ntpxPTPkAY8FS68Bsi3k",
-        authDomain: "guildarena7-itens-final.firebaseapp.com",
-        projectId: "guildarena7-itens-final",
-        storageBucket: "guildarena7-itens-final.appspot.com", // Corrigi para .appspot.com
-        messagingSenderId: "215331709133",
-        appId: "1:215331709133:web:636349117e86b648ff8984"
-    };
+        // SUAS configurações do Firebase (obtidas no console)
+        const firebaseConfig = {
+            apiKey: "AIzaSyCHiBHZbP0kJ50ntpxPTPkAY8FS68Bsi3k",
+            authDomain: "guildarena7-itens-final.firebaseapp.com",
+            projectId: "guildarena7-itens-final",
+            storageBucket: "guildarena7-itens-final.appspot.com",
+            messagingSenderId: "215331709133",
+            appId: "1:215331709133:web:636349117e86b648ff8984"
+        };
 
-    // Inicialize o Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const itemsCollection = collection(db, "arena7Items");
+        // Inicializa o Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const itemsCollection = collection(db, "arena7Items");
 
-    // Debug (verifique no console F12)
-    console.log("Firebase inicializado!");
+        // Debug de inicialização
+        console.log("Firebase inicializado com sucesso!");
 
-    // Disponibiliza as funções globalmente
-    window.firebaseItems = {
-        itemsCollection,
-        addDoc, 
-        getDocs, 
-        doc, 
-        deleteDoc,
-        updateDoc
-    };
-</script>
+        // Teste de conexão (pode remover depois)
+        async function testConnection() {
+            try {
+                const docRef = await addDoc(collection(db, "testes"), {
+                    message: "Teste de conexão em " + new Date()
+                });
+                console.log("Conexão OK! ID:", docRef.id);
+            } catch (error) {
+                console.error("Falha na conexão:", error);
+            }
+        }
+        testConnection();
+
+        // Disponibiliza as funções globalmente
+        window.firebaseItems = {
+            itemsCollection,
+            addDoc, 
+            getDocs, 
+            doc, 
+            deleteDoc,
+            updateDoc
+        };
+    </script>
 
     <script>
-        // Função para abrir abas (igual à sua original)
+        // Função para abrir abas
         function openTab(evt, tabName) {
-            /* ... (mantido igual) ... */
+            const tabcontent = document.getElementsByClassName("tabcontent");
+            for (let i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].classList.remove("active-tab");
+            }
+
+            const tablinks = document.getElementsByClassName("tablinks");
+            for (let i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+
+            document.getElementById(tabName).classList.add("active-tab");
+            evt.currentTarget.className += " active";
+
+            if (tabName === 'itens') loadItemsTable();
         }
 
-        // Função para validar o formato do valor (igual à sua original)
+        // Função para validar o formato do valor
         function isValidValue(value) {
-            /* ... (mantido igual) ... */
+            if (!value) return false;
+            const pattern = /^(\d*\.?\d+[swfgrd])(\+\d*\.?\d+[swfgrd])*$/i;
+            return pattern.test(value.replace(/\s+/g, ''));
         }
 
-        // Função para adicionar item (ATUALIZADA COM DEBUG)
+        // Função para adicionar item (Firebase)
         async function addItem() {
             const name = document.getElementById("itemName").value.trim();
             const buyValue = document.getElementById("buyValue").value.trim();
             const sellValue = document.getElementById("sellValue").value.trim();
             const errorElement = document.getElementById("errorMessage");
 
-            // Validações (mantidas iguais)
             if (!name || !buyValue || !sellValue) {
                 errorElement.textContent = "Todos os campos devem ser preenchidos!";
                 return;
@@ -107,8 +335,7 @@
             errorElement.textContent = "";
 
             try {
-                console.log("Tentando cadastrar item..."); // Debug
-                
+                console.log("Tentando cadastrar item...");
                 const docRef = await firebaseItems.addDoc(firebaseItems.itemsCollection, {
                     name: name,
                     buyValue: buyValue,
@@ -117,7 +344,7 @@
                     createdAt: new Date()
                 });
                 
-                console.log("Item cadastrado com ID:", docRef.id); // Debug
+                console.log("Item cadastrado com ID:", docRef.id);
                 
                 document.getElementById("itemName").value = '';
                 document.getElementById("buyValue").value = '';
@@ -125,25 +352,220 @@
                 
                 alert("Item cadastrado! Aguarde aprovação.");
             } catch (error) {
-                console.error("Erro detalhado:", error); // Debug aprimorado
+                console.error("Erro detalhado:", error);
                 errorElement.textContent = "Erro ao cadastrar item. Verifique o console (F12) para detalhes.";
             }
         }
 
-        // ... (todas as outras funções permanecem IGUAIS às suas originais) ...
+        // Função para carregar itens (Firebase)
+        async function loadItemsTable(filter = '') {
+            const tbody = document.getElementById("itemsTableBody");
+            tbody.innerHTML = '';
 
-        // Funções originais mantidas:
-        // - loadItemsTable()
-        // - deleteItem()
-        // - searchItems()
-        // - approveItem()
-        // - checkAdmin()
-        // - loadPendingItems()
-        // - converter()
-        
+            try {
+                const querySnapshot = await firebaseItems.getDocs(firebaseItems.itemsCollection);
+                const itemsData = [];
+                
+                querySnapshot.forEach((doc) => {
+                    const item = doc.data();
+                    if (item.approved) {
+                        itemsData.push({
+                            id: doc.id,
+                            ...item
+                        });
+                    }
+                });
+
+                const filteredItems = itemsData.filter(item => 
+                    item.name.toLowerCase().includes(filter.toLowerCase())
+                );
+
+                if (filteredItems.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4">Nenhum item aprovado encontrado</td></tr>';
+                    return;
+                }
+
+                filteredItems.forEach(item => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${item.name}</td>
+                        <td>${item.buyValue}</td>
+                        <td>${item.sellValue}</td>
+                        <td>
+                            <button onclick="deleteItem('${item.id}')">Excluir</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } catch (error) {
+                console.error("Erro ao carregar itens:", error);
+                tbody.innerHTML = '<tr><td colspan="4">Erro ao carregar itens</td></tr>';
+            }
+        }
+
+        // Função para deletar item (Firebase)
+        async function deleteItem(id) {
+            if (confirm("Tem certeza que deseja excluir este item?")) {
+                try {
+                    await firebaseItems.deleteDoc(firebaseItems.doc(firebaseItems.itemsCollection, id));
+                    loadItemsTable();
+                    loadPendingItems();
+                } catch (error) {
+                    console.error("Erro ao excluir item:", error);
+                    alert("Erro ao excluir item. Tente novamente.");
+                }
+            }
+        }
+
+        // Função para buscar itens
+        function searchItems() {
+            const searchTerm = document.getElementById("searchItem").value;
+            loadItemsTable(searchTerm);
+        }
+
+        // Função para aprovar item (Firebase)
+        async function approveItem(id) {
+            try {
+                const itemRef = firebaseItems.doc(firebaseItems.itemsCollection, id);
+                await firebaseItems.updateDoc(itemRef, {
+                    approved: true
+                });
+                loadItemsTable();
+                loadPendingItems();
+            } catch (error) {
+                console.error("Erro ao aprovar item:", error);
+                alert("Erro ao aprovar item. Tente novamente.");
+            }
+        }
+
+        // Verifica se é admin
+        function checkAdmin() {
+            const password = prompt("Digite a senha de administrador:");
+            if (password === "1910") {
+                document.getElementById("adminTab").style.display = 'block';
+                openTab(event, 'adminTab');
+                loadPendingItems();
+            } else {
+                alert("Acesso negado!");
+            }
+        }
+
+        // Função para carregar itens pendentes (Firebase)
+        async function loadPendingItems() {
+            const tbody = document.getElementById("pendingItemsBody");
+            tbody.innerHTML = '';
+
+            try {
+                const querySnapshot = await firebaseItems.getDocs(firebaseItems.itemsCollection);
+                const pendingItems = [];
+                
+                querySnapshot.forEach((doc) => {
+                    const item = doc.data();
+                    if (!item.approved) {
+                        pendingItems.push({
+                            id: doc.id,
+                            ...item
+                        });
+                    }
+                });
+
+                if (pendingItems.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4">Nenhum item pendente</td></tr>';
+                    return;
+                }
+
+                pendingItems.forEach(item => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${item.name}</td>
+                        <td>${item.buyValue}</td>
+                        <td>${item.sellValue}</td>
+                        <td>
+                            <button onclick="approveItem('${item.id}')">Aprovar</button>
+                            <button onclick="deleteItem('${item.id}')">Rejeitar</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } catch (error) {
+                console.error("Erro ao carregar itens pendentes:", error);
+                tbody.innerHTML = '<tr><td colspan="4">Erro ao carregar itens pendentes</td></tr>';
+            }
+        }
+
+        // Seu conversor original (mantido intacto)
+        function converter() {
+            const input = document.getElementById("input").value.trim().toLowerCase();
+            const resultado = document.getElementById("resultado");
+            const match = input.match(/^(\d+)(s|w|fg|br)$/);
+            if (!match) {
+                resultado.textContent = "Formato inválido! Use algo como '1s', '2w', '3fg'.";
+                return;
+            }
+
+            const quantidade = parseInt(match[1]);
+            const unidade = match[2];
+            let totalFG = 0;
+            if (unidade === "s") totalFG = quantidade * 66;
+            else if (unidade === "w") totalFG = quantidade * 4;
+            else if (unidade === "fg") totalFG = quantidade;
+            else if (unidade === "br") totalFG = quantidade / 15;
+
+            let styles = 0, wars = 0, fenrirGolds = 0, boxReds = 0;
+            let output = "";
+
+            if (unidade === "s") {
+                wars = quantidade * 16;
+                fenrirGolds = quantidade * 2;
+                wars += Math.floor(fenrirGolds / 4);
+                fenrirGolds = fenrirGolds % 4;
+                if (wars > 0) output += `${wars}w `;
+                if (fenrirGolds > 0) output += `${fenrirGolds}fg `;
+            } else if (unidade === "w") {
+                styles = Math.floor(totalFG / 66);
+                let restoFG = totalFG % 66;
+                wars = Math.floor(restoFG / 4);
+                fenrirGolds = restoFG % 4;
+                if (styles > 0) output += `${styles}s `;
+                if (wars > 0) output += `${wars}w `;
+                if (fenrirGolds > 0) output += `${fenrirGolds}fg `;
+                if (styles === 0 && wars === 0 && fenrirGolds > 0) {
+                    output = `${totalFG}fg`;
+                }
+            } else if (unidade === "fg") {
+                styles = Math.floor(totalFG / 66);
+                let restoFG = totalFG % 66;
+                wars = Math.floor(restoFG / 4);
+                fenrirGolds = restoFG % 4;
+                if (fenrirGolds > 0) {
+                    boxReds = fenrirGolds * 15;
+                    fenrirGolds = Math.floor(boxReds / 15);
+                    boxReds = boxReds % 15;
+                }
+                if (styles > 0) output += `${styles}s `;
+                if (wars > 0) output += `${wars}w `;
+                if (fenrirGolds > 0) output += `${fenrirGolds}fg `;
+                if (boxReds > 0) output += `${boxReds}br `;
+            } else if (unidade === "br") {
+                totalFG = quantidade / 15;
+                styles = Math.floor(totalFG / 66);
+                let restoFG = totalFG % 66;
+                wars = Math.floor(restoFG / 4);
+                fenrirGolds = restoFG % 4;
+                boxReds = Math.floor((quantidade % 15));
+                if (styles > 0) output += `${styles}s `;
+                if (wars > 0) output += `${wars}w `;
+                if (fenrirGolds > 0) output += `${fenrirGolds}fg `;
+                if (boxReds > 0) output += `${boxReds}br `;
+            }
+
+            const resultadoTexto = output.trim() || "0";
+            resultado.textContent = resultadoTexto;
+        }
+
         // Carrega os itens quando a página é aberta
         window.onload = function() {
-            console.log("Página carregada, iniciando..."); // Debug
+            console.log("Página carregada, iniciando...");
             loadItemsTable();
         };
     </script>
