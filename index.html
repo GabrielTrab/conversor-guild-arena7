@@ -17,7 +17,6 @@
             position: relative;
             padding: 20px;
         }
-
         .main-container {
             display: flex;
             flex-direction: column;
@@ -26,7 +25,6 @@
             max-width: 900px;
             gap: 20px;
         }
-
         .container {
             text-align: center;
             background-color: white;
@@ -35,7 +33,6 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             width: 100%;
         }
-
         .items-container {
             text-align: center;
             background-color: white;
@@ -44,7 +41,6 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             width: 100%;
         }
-
         input, select {
             padding: 8px;
             margin: 5px;
@@ -52,7 +48,6 @@
             border-radius: 4px;
             width: 150px;
         }
-
         button {
             padding: 8px 15px;
             background-color: #000000;
@@ -62,16 +57,13 @@
             cursor: pointer;
             margin: 5px;
         }
-
         button:hover {
             background-color: #333333;
         }
-
         #resultado {
             margin-top: 20px;
             font-weight: bold;
         }
-
         .footer {
             position: absolute;
             bottom: 10px;
@@ -79,49 +71,40 @@
             font-size: 12px;
             color: #666;
         }
-
         .form-group {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             margin: 10px 0;
         }
-
         .form-control {
             margin: 5px;
         }
-
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
         }
-
         th, td {
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
         }
-
         th {
             background-color: #f2f2f2;
         }
-
         tr:nth-child(even) {
             background-color: #f9f9f9;
         }
-
         .search-container {
             margin: 15px 0;
         }
-
         .tab {
             overflow: hidden;
             border: 1px solid #ccc;
             background-color: #f1f1f1;
             border-radius: 5px 5px 0 0;
         }
-
         .tab button {
             background-color: inherit;
             float: left;
@@ -132,16 +115,13 @@
             transition: 0.3s;
             color: black;
         }
-
         .tab button:hover {
             background-color: #ddd;
         }
-
         .tab button.active {
             background-color: #000;
             color: white;
         }
-
         .tabcontent {
             display: none;
             padding: 20px;
@@ -150,24 +130,20 @@
             border-radius: 0 0 5px 5px;
             background-color: white;
         }
-
         .active-tab {
             display: block;
         }
-
         .unit-hint {
             font-size: 12px;
             color: #666;
             margin-top: -5px;
             margin-bottom: 10px;
         }
-
         .error-message {
             color: red;
             font-size: 14px;
             margin-top: 5px;
         }
-
         #adminTab {
             display: none;
         }
@@ -258,10 +234,46 @@
     
     <div class="footer">Feito por -maykin-_-</div>
     
-    <script>
-        // Array para armazenar os itens
-        let itemsData = JSON.parse(localStorage.getItem('arena7Items')) || [];
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { 
+            getFirestore, 
+            collection, 
+            addDoc, 
+            getDocs, 
+            doc, 
+            deleteDoc,
+            updateDoc
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+        // Configuração do Firebase (substitua pelos seus dados)
+        const firebaseConfig = {
+            apiKey: "SUA_API_KEY",
+            authDomain: "SEU_PROJETO.firebaseapp.com",
+            projectId: "SEU_PROJETO_ID",
+            storageBucket: "SEU_BUCKET.appspot.com",
+            messagingSenderId: "SEU_SENDER_ID",
+            appId: "SEU_APP_ID"
+        };
+
+        // Inicializa o Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const itemsCollection = collection(db, "arena7Items");
+
+        // Disponibiliza as funções globalmente
+        window.firebaseItems = {
+            itemsCollection,
+            addDoc, 
+            getDocs, 
+            doc, 
+            deleteDoc,
+            updateDoc
+        };
+    </script>
+
+    <script>
         // Função para abrir abas
         function openTab(evt, tabName) {
             const tabcontent = document.getElementsByClassName("tabcontent");
@@ -277,28 +289,23 @@
             document.getElementById(tabName).classList.add("active-tab");
             evt.currentTarget.className += " active";
 
-            // Se for a aba de itens, atualiza a tabela
-            if (tabName === 'itens') {
-                loadItemsTable();
-            }
+            if (tabName === 'itens') loadItemsTable();
         }
 
-        // Função para validar o formato do valor (aceita valores fracionários como 0.5s)
+        // Função para validar o formato do valor
         function isValidValue(value) {
             if (!value) return false;
-            // Padrão para formatos como 1s, 0.5w, 3fg, 1s+2w, 1w+3fg, etc.
             const pattern = /^(\d*\.?\d+[swfgrd])(\+\d*\.?\d+[swfgrd])*$/i;
             return pattern.test(value.replace(/\s+/g, ''));
         }
 
-        // Função para adicionar item
-        function addItem() {
+        // Função para adicionar item (Firebase)
+        async function addItem() {
             const name = document.getElementById("itemName").value.trim();
             const buyValue = document.getElementById("buyValue").value.trim();
             const sellValue = document.getElementById("sellValue").value.trim();
             const errorElement = document.getElementById("errorMessage");
 
-            // Validação dos campos
             if (!name || !buyValue || !sellValue) {
                 errorElement.textContent = "Todos os campos devem ser preenchidos!";
                 return;
@@ -311,66 +318,83 @@
 
             errorElement.textContent = "";
 
-            const newItem = {
-                id: Date.now(),
-                name: name,
-                buyValue: buyValue,
-                sellValue: sellValue,
-                approved: false // Itens começam como não aprovados
-            };
-
-            itemsData.push(newItem);
-            saveItems();
-            
-            // Limpar campos
-            document.getElementById("itemName").value = '';
-            document.getElementById("buyValue").value = '';
-            document.getElementById("sellValue").value = '';
-
-            alert("Item cadastrado! Aguarde aprovação.");
+            try {
+                await firebaseItems.addDoc(firebaseItems.itemsCollection, {
+                    name: name,
+                    buyValue: buyValue,
+                    sellValue: sellValue,
+                    approved: false,
+                    createdAt: new Date()
+                });
+                
+                document.getElementById("itemName").value = '';
+                document.getElementById("buyValue").value = '';
+                document.getElementById("sellValue").value = '';
+                
+                alert("Item cadastrado! Aguarde aprovação.");
+            } catch (error) {
+                console.error("Erro ao adicionar item:", error);
+                errorElement.textContent = "Erro ao cadastrar item. Tente novamente.";
+            }
         }
 
-        // Função para salvar itens no localStorage
-        function saveItems() {
-            localStorage.setItem('arena7Items', JSON.stringify(itemsData));
-        }
-
-        // Função para carregar a tabela de itens
-        function loadItemsTable(filter = '') {
+        // Função para carregar itens (Firebase)
+        async function loadItemsTable(filter = '') {
             const tbody = document.getElementById("itemsTableBody");
             tbody.innerHTML = '';
 
-            const filteredItems = itemsData.filter(item => {
-                const matchesSearch = item.name.toLowerCase().includes(filter.toLowerCase());
-                return item.approved && matchesSearch;
-            });
+            try {
+                const querySnapshot = await firebaseItems.getDocs(firebaseItems.itemsCollection);
+                const itemsData = [];
+                
+                querySnapshot.forEach((doc) => {
+                    const item = doc.data();
+                    if (item.approved) {
+                        itemsData.push({
+                            id: doc.id,
+                            ...item
+                        });
+                    }
+                });
 
-            if (filteredItems.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4">Nenhum item aprovado encontrado</td></tr>';
-                return;
+                const filteredItems = itemsData.filter(item => 
+                    item.name.toLowerCase().includes(filter.toLowerCase())
+                );
+
+                if (filteredItems.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4">Nenhum item aprovado encontrado</td></tr>';
+                    return;
+                }
+
+                filteredItems.forEach(item => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${item.name}</td>
+                        <td>${item.buyValue}</td>
+                        <td>${item.sellValue}</td>
+                        <td>
+                            <button onclick="deleteItem('${item.id}')">Excluir</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } catch (error) {
+                console.error("Erro ao carregar itens:", error);
+                tbody.innerHTML = '<tr><td colspan="4">Erro ao carregar itens</td></tr>';
             }
-
-            filteredItems.forEach(item => {
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td>${item.name}</td>
-                    <td>${item.buyValue}</td>
-                    <td>${item.sellValue}</td>
-                    <td>
-                        <button onclick="deleteItem(${item.id})">Excluir</button>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
         }
 
-        // Função para deletar item
-        function deleteItem(id) {
+        // Função para deletar item (Firebase)
+        async function deleteItem(id) {
             if (confirm("Tem certeza que deseja excluir este item?")) {
-                itemsData = itemsData.filter(item => item.id !== id);
-                saveItems();
-                loadItemsTable();
-                loadPendingItems(); // Atualiza também a lista de pendentes
+                try {
+                    await firebaseItems.deleteDoc(firebaseItems.doc(firebaseItems.itemsCollection, id));
+                    loadItemsTable();
+                    loadPendingItems();
+                } catch (error) {
+                    console.error("Erro ao excluir item:", error);
+                    alert("Erro ao excluir item. Tente novamente.");
+                }
             }
         }
 
@@ -380,21 +404,24 @@
             loadItemsTable(searchTerm);
         }
 
-        // Função para aprovar item sem confirmação
-        function approveItem(id) {
-            const item = itemsData.find(item => item.id === id);
-            if (item) {
-                item.approved = true;
-                saveItems();
+        // Função para aprovar item (Firebase)
+        async function approveItem(id) {
+            try {
+                const itemRef = firebaseItems.doc(firebaseItems.itemsCollection, id);
+                await firebaseItems.updateDoc(itemRef, {
+                    approved: true
+                });
                 loadItemsTable();
                 loadPendingItems();
+            } catch (error) {
+                console.error("Erro ao aprovar item:", error);
+                alert("Erro ao aprovar item. Tente novamente.");
             }
         }
 
         // Verifica se é admin
         function checkAdmin() {
             const password = prompt("Digite a senha de administrador:");
-            // Substitua "SUA_SENHA" pela senha que você quer usar
             if (password === "1910") {
                 document.getElementById("adminTab").style.display = 'block';
                 openTab(event, 'adminTab');
@@ -404,36 +431,48 @@
             }
         }
 
-        // Função para carregar itens pendentes
-        function loadPendingItems() {
-            const pendingItems = itemsData.filter(item => !item.approved);
+        // Função para carregar itens pendentes (Firebase)
+        async function loadPendingItems() {
             const tbody = document.getElementById("pendingItemsBody");
             tbody.innerHTML = '';
 
-            if (pendingItems.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4">Nenhum item pendente</td></tr>';
-                return;
+            try {
+                const querySnapshot = await firebaseItems.getDocs(firebaseItems.itemsCollection);
+                const pendingItems = [];
+                
+                querySnapshot.forEach((doc) => {
+                    const item = doc.data();
+                    if (!item.approved) {
+                        pendingItems.push({
+                            id: doc.id,
+                            ...item
+                        });
+                    }
+                });
+
+                if (pendingItems.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4">Nenhum item pendente</td></tr>';
+                    return;
+                }
+
+                pendingItems.forEach(item => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${item.name}</td>
+                        <td>${item.buyValue}</td>
+                        <td>${item.sellValue}</td>
+                        <td>
+                            <button onclick="approveItem('${item.id}')">Aprovar</button>
+                            <button onclick="deleteItem('${item.id}')">Rejeitar</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } catch (error) {
+                console.error("Erro ao carregar itens pendentes:", error);
+                tbody.innerHTML = '<tr><td colspan="4">Erro ao carregar itens pendentes</td></tr>';
             }
-
-            pendingItems.forEach(item => {
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td>${item.name}</td>
-                    <td>${item.buyValue}</td>
-                    <td>${item.sellValue}</td>
-                    <td>
-                        <button onclick="approveItem(${item.id})">Aprovar</button>
-                        <button onclick="deleteItem(${item.id})">Rejeitar</button>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
         }
-
-        // Carrega a tabela quando a página é aberta
-        window.onload = function() {
-            loadItemsTable();
-        };
 
         // Seu conversor original (mantido intacto)
         function converter() {
@@ -504,6 +543,11 @@
             const resultadoTexto = output.trim() || "0";
             resultado.textContent = resultadoTexto;
         }
+
+        // Carrega os itens quando a página é aberta
+        window.onload = function() {
+            loadItemsTable();
+        };
     </script>
 </body>
 </html>
